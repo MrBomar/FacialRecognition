@@ -1,16 +1,15 @@
 import React from 'react';
 
-const Rank = () => {
+const Rank = (props) => {
     const styles = {
         div:{
             color: 'white'
         }
     }
-
     return (
         <div style={styles.div}>
-            {'Leslie, your current rank is...'}
-            <h1>#5</h1>
+            {`${props.userName}, your current rank is...`}
+            <h1>#{props.userRank}</h1>
         </div>
     )
 }

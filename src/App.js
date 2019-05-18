@@ -10,6 +10,8 @@ import Register from './components/Register/Register';
 import SignIn from './components/SignIn/SignIn';
 import './App.css';
 
+const SERVER = 'http://172.17.94.133:3010/';
+
 const app = new clarifai.App({
   apiKey: "685450f6661742ea9fcdcdf2c489db32"
 })
@@ -34,16 +36,35 @@ class App extends Component{
       imageUrl: '',
       box: {},
       route: 'signin',
-      isSignedIn: false
+      isSignedIn: false,
+      user: {
+        id: '',
+        name: '',
+        email: '',
+        entries: 0,
+        joined: ''
+      }
     }
+  }
+
+  updateUser = (obj) => {
+    const {id, name, email, entries, joined} = obj[0];
+    this.setState({
+      isSignedIn: true,
+      user: {
+        id: id,
+        name: name,
+        email: email,
+        entries: entries,
+        joined: joined
+      }
+    })
   }
 
   calculateFaceLocation = (data) => {
     const image = document.getElementById('inputImage');
     const width = Number(image.width);
     const height = Number(image.height);
-    console.log(data)
-    console.log(height, width);
     return {
       leftCol: data.left_col * width,
       topRow: data.top_row * height,
@@ -60,13 +81,26 @@ class App extends Component{
     this.setState({input:event.target.value});
   }
 
-  onSubmit = (event) => {
+  onImageSubmit = (event) => {
     this.setState({imageUrl:this.state.input})
     if(this.state.input){
       app.models.predict(
         clarifai.FACE_DETECT_MODEL,
         this.state.input)
-      .then( response => {
+      .then(response => {
+          if(response) {
+            fetch(SERVER+'image',{
+              method: 'put',
+              headers: {'Content-Type': "application/json"},
+              body: JSON.stringify({
+                id: this.state.user.id
+              })
+            })
+            .then(res=>res.json())
+            .then(data=>{
+              this.setState(Object.assign(this.state.user, {entries:data}))
+            })
+          }
           let data = response.outputs[0].data.regions[0].region_info.bounding_box;
           this.displayFaceBox(this.calculateFaceLocation(data));
         })
@@ -89,14 +123,14 @@ class App extends Component{
       case 'home':
         return (<div>
           <Logo />
-          <Rank />
-          <ImageLinkForm onInputChange={this.onInputChange} onSubmit={this.onSubmit}/>
+          <Rank userRank={this.state.user.entries} userName={this.state.user.name}/>
+          <ImageLinkForm onInputChange={this.onInputChange} onImageSubmit={this.onImageSubmit}/>
           <FaceRecognition box={this.state.box} imageUrl={this.state.imageUrl} />
         </div>)
       case 'signin':
-        return (<SignIn onRouteChange={this.onRouteChange} />)
+        return (<SignIn onRouteChange={this.onRouteChange} updateUser={this.updateUser}/>)
       default:
-        return (<Register onRouteChange={this.onRouteChange}/>)
+        return (<Register onRouteChange={this.onRouteChange} updateUser={this.updateUser}/>)
     }
   }
 

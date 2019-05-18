@@ -13,9 +13,11 @@ class SignIn extends React.Component{
     onEmailChange = (event) => {
         this.setState({signInEmail: event.target.value});
     }
+
     onPasswordChange = (event) => {
         this.setState({signInPassword: event.target.value})
     }
+    
     onSubmitSignIn = (event) => {
         fetch(SERVER+'signin', {
             method: 'post',
@@ -40,6 +42,7 @@ class SignIn extends React.Component{
         })
         .catch(err=>alert('You got it wrong!'))
     }
+
     render(){
         return (
             <article className="br3 shadow-5 ba dark-gray b--black-10 mv4 w-100 w-50-m w-25-l mw6 center bg-white">

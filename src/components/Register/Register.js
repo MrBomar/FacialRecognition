@@ -28,10 +28,11 @@ class Register extends React.Component{
             })
         })
         .then(response=>{
+            console.log(response);
             if(response.status === 400){
                 throw response;
             } else {
-                return response.json()
+                return response.json();
             }
         })
         .then(data => {

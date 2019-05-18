@@ -4,7 +4,6 @@ import Logo from './components/Logo/Logo'
 import ImageLinkForm from './components/ImageLinkForm/ImageLinkForm'
 import Rank from './components/Rank/Rank';
 import Particles from 'react-particles-js';
-import clarifai from 'clarifai';
 import FaceRecognition from './components/FaceRecognition/FaceRecognition'
 import Register from './components/Register/Register';
 import SignIn from './components/SignIn/SignIn';
@@ -12,9 +11,20 @@ import './App.css';
 
 const SERVER = 'http://172.17.94.133:3010/';
 
-const app = new clarifai.App({
-  apiKey: "685450f6661742ea9fcdcdf2c489db32"
-})
+const initialState = {
+  input: '',
+  imageUrl: '',
+  box: {},
+  route: 'signin',
+  isSignedIn: false,
+  user: {
+    id: '',
+    name: '',
+    email: '',
+    entries: 0,
+    joined: ''
+  }
+}
 
 const params = {
   particles: {
@@ -31,24 +41,15 @@ const params = {
 class App extends Component{
   constructor() {
     super();
-    this.state ={
-      input: '',
-      imageUrl: '',
-      box: {},
-      route: 'signin',
-      isSignedIn: false,
-      user: {
-        id: '',
-        name: '',
-        email: '',
-        entries: 0,
-        joined: ''
-      }
-    }
+    this.state = initialState;
+  }
+
+  logOut = () => {
+    this.setState(initialState);
   }
 
   updateUser = (obj) => {
-    const {id, name, email, entries, joined} = obj[0];
+    const {id, name, email, entries, joined} = obj;
     this.setState({
       isSignedIn: true,
       user: {
@@ -82,11 +83,16 @@ class App extends Component{
   }
 
   onImageSubmit = (event) => {
-    this.setState({imageUrl:this.state.input})
+    this.setState({imageUrl:this.state.input}) 
     if(this.state.input){
-      app.models.predict(
-        clarifai.FACE_DETECT_MODEL,
-        this.state.input)
+      fetch(SERVER + 'imageurl', {
+        method: 'post',
+        headers: {'Content-Type': "application/json"},
+        body: JSON.stringify({
+          input: this.state.input
+        })
+      })
+      .then(response=>response.json())
       .then(response => {
           if(response) {
             fetch(SERVER+'image',{
@@ -99,6 +105,9 @@ class App extends Component{
             .then(res=>res.json())
             .then(data=>{
               this.setState(Object.assign(this.state.user, {entries:data}))
+            })
+            .catch(err => {
+              console.log('Could not update user')
             })
           }
           let data = response.outputs[0].data.regions[0].region_info.bounding_box;
@@ -138,7 +147,11 @@ class App extends Component{
     return (
       <div className="App">
         <Particles params={params} className='particles'/>
-        <Navigation onRouteChange={this.onRouteChange} isSignedIn={this.state.isSignedIn}/>
+        <Navigation 
+          onRouteChange={this.onRouteChange}
+          isSignedIn={this.state.isSignedIn}
+          logOut={this.logOut}
+          />
         {this.displayThis()}
       </div>
     )

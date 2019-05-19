@@ -1,5 +1,4 @@
 import React from 'react';
-const SERVER = 'http://172.17.94.133:3010/';
 
 class SignIn extends React.Component{
     constructor(props){
@@ -19,7 +18,7 @@ class SignIn extends React.Component{
     }
     
     onSubmitSignIn = (event) => {
-        fetch(SERVER+'signin', {
+        fetch(this.props.SERVER+'signin', {
             method: 'post',
             headers: {'Content-Type': "application/json"},
             body: JSON.stringify({

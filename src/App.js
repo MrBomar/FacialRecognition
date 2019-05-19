@@ -9,7 +9,7 @@ import Register from './components/Register/Register';
 import SignIn from './components/SignIn/SignIn';
 import './App.css';
 
-const SERVER = 'http://172.17.94.133:3010/';
+export const SERVER = 'https://dry-shelf-22369.herokuapp.com/';
 
 const initialState = {
   input: '',
@@ -137,9 +137,9 @@ class App extends Component{
           <FaceRecognition box={this.state.box} imageUrl={this.state.imageUrl} />
         </div>)
       case 'signin':
-        return (<SignIn onRouteChange={this.onRouteChange} updateUser={this.updateUser}/>)
+        return (<SignIn SERVER={SERVER} onRouteChange={this.onRouteChange} updateUser={this.updateUser}/>)
       default:
-        return (<Register onRouteChange={this.onRouteChange} updateUser={this.updateUser}/>)
+        return (<Register SERVER={SERVER} onRouteChange={this.onRouteChange} updateUser={this.updateUser}/>)
     }
   }
 

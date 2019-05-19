@@ -1,5 +1,4 @@
 import React from 'react';
-const SERVER = 'http://172.17.94.133:3010/';
 
 class Register extends React.Component{
     constructor(props){
@@ -18,7 +17,7 @@ class Register extends React.Component{
     onPasswordChange = (e) => this.setState({registerPassword: e.target.value})
 
     onRegisterSubmit = () => {
-        fetch(SERVER+'register', {
+        fetch(this.props.SERVER+'register', {
             method: 'post',
             headers: {'Content-type': "application/json"},
             body: JSON.stringify({
